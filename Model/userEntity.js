@@ -8,4 +8,4 @@ const userEntity = new mongoose.Schema({
     transactionData: { type: Array }
 })
 
-exports.userEntity = mongoose.model('User', userEntity);
+module.exports = mongoose.model('User', userEntity);
