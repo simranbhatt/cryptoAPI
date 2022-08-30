@@ -8,7 +8,7 @@ const User = require('../Model/userEntity.js');
 const app = express();
 app.listen(PORT, () => console.log(`server running on port ${PORT}`));
 //const uri = process.env.MONGODB_URI;
-const uri = 'mongodb+srv://simran:onetwo3.@sharedcluster.rctpodh.mongodb.net/?retryWrites=true&w=majority';
+const uri = 'mongodb+srv://herokuapp1:qazwsxedc@sharedcluster.rctpodh.mongodb.net/?retryWrites=true&w=majority';
 
 mongoose.connect(uri);
 
