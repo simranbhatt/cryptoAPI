@@ -4,9 +4,11 @@ const express = require('express');
 const axios = require('axios');
 const mongoose = require('mongoose');
 const app = express();
-const User = require('../Model/userEntity.js').User;
-const Balance = require('../Model/balanceEntity.js').Balance;
+const { User } = require('../Model/userEntity.js');
+const { Balance } = require('../Model/balanceEntity.js');
 const { Ether } = require('../Model/etherEntity');
+require('dotenv').config()
+
 
 app.listen(PORT, () => console.log(`server running on port ${PORT}`));
 //const uri = process.env.MONGODB_URI;
