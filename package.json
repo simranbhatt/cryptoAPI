@@ -4,7 +4,7 @@
   "description": "API to return crypto transactions of a user",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon userController.js"
+    "start": "nodemon Controller/userController.js"
   },
   "author": "Simran Bhatt",
   "license": "ISC",
