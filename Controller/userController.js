@@ -6,6 +6,7 @@ const mongoose = require('mongoose');
 const app = express();
 const User = require('../Model/userEntity.js').User;
 const Balance = require('../Model/balanceEntity.js').Balance;
+const {Ether} = require('../Model/etherEntity');
 
 app.listen(PORT, () => console.log(`server running on port ${PORT}`));
 //const uri = process.env.MONGODB_URI;
@@ -13,7 +14,7 @@ const uri = 'mongodb+srv://herokuapp1:qazwsxedc@sharedcluster.rctpodh.mongodb.ne
 
 mongoose.connect(uri);
 
-
+//function to get user transactions from etherscan api 
 async function userTransactions(userAddress) {
 var url = 'https://api.etherscan.io/api/';
 
@@ -23,15 +24,29 @@ var params = {
              address: '0xce94e5621a5f7068253c42558c147480f38b5e0d',
              apikey: 'M6YYM31SM782UPJREXRJSFNGXMP1HAE6RJ'
  };
- console.log(params);
-const res = await axios.get(url, { params: params });
+const response = await axios.get(url, { params: params });
 
-return res.data.result;
-    
-}
+return response.data.result;
+};
 
+//function to save current value of Ethereum to the database every 10 minutes
+async function ethereumValue() {
+  try {
+  var url = 'https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=inr';
+  const response = await axios.get(url);
+  const inrValueString = Object.values(response.data).map((item)=>{ return item.inr });
+  const inrValue = parseFloat(inrValueString);
+  const ether = new Ether({valueInINR : inrValue});
+  ether.save();
+  return inrValue;
+  } catch(err) {
+    console.log(err);
+  }
+};
 
+var refresh = setInterval(ethereumValue, 600000);
 
+//API to get all user transactions based on the provided user address
 app.get('/allUserTransactions/:address', (req, res) => {
     const userAddress = req.params.address;
     (async () => {
@@ -45,22 +60,24 @@ app.get('/allUserTransactions/:address', (req, res) => {
       }
 
     })();
-})
+});
 
+//API to get user balance and current ethereum value 
 app.get('/getBalance/:address', (req, res) => {
   const userAddress = req.params.address;
   (async () => {
     try {
       const dataArray = await userTransactions(userAddress);
       var totalValue = 0;
-      console.log(dataArray);
   Object.values(dataArray).forEach((item)=>{
     if(item.to === userAddress) 
       totalValue += parseFloat(item.value);
     else if(item.from === userAddress) 
      totalValue -= parseFloat(item.value);
     });
-      const balance = new Balance({'address': userAddress, 'currentBalance': totalValue, 'etherValue': 0});
+      const etherValueInINR = await ethereumValue();
+      console.log(etherValueInINR);
+      const balance = new Balance({'address': userAddress, 'currentBalance': totalValue, 'etherValue': parseFloat(etherValueInINR)});
       balance.save();
       res.json(balance);
     } catch (err) {
