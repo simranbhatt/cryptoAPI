@@ -3,9 +3,10 @@ const PORT = 8000
 const express = require('express');
 const axios = require('axios');
 const mongoose = require('mongoose');
-const User = require('../Model/userEntity.js');
-
 const app = express();
+const User = require('../Model/userEntity.js').User;
+const Balance = require('../Model/balanceEntity.js').Balance;
+
 app.listen(PORT, () => console.log(`server running on port ${PORT}`));
 //const uri = process.env.MONGODB_URI;
 const uri = 'mongodb+srv://herokuapp1:qazwsxedc@sharedcluster.rctpodh.mongodb.net/?retryWrites=true&w=majority';
@@ -25,19 +26,11 @@ var params = {
  console.log(params);
 const res = await axios.get(url, { params: params });
 
-/*
-//returning summarized transaction data
-
-var dataArray = [];
-
-Object.values(res.data.result).forEach((item)=>{
-    dataArray.push({'transactionIndex': item.transactionIndex, 'from': item.from, 'to': item.to, 'value': item.value});
-  });
-*/
-
 return res.data.result;
     
 }
+
+
 
 app.get('/allUserTransactions/:address', (req, res) => {
     const userAddress = req.params.address;
@@ -52,5 +45,28 @@ app.get('/allUserTransactions/:address', (req, res) => {
       }
 
     })();
+})
+
+app.get('/getBalance/:address', (req, res) => {
+  const userAddress = req.params.address;
+  (async () => {
+    try {
+      const dataArray = await userTransactions(userAddress);
+      var totalValue = 0;
+      console.log(dataArray);
+  Object.values(dataArray).forEach((item)=>{
+    if(item.to === userAddress) 
+      totalValue += parseFloat(item.value);
+    else if(item.from === userAddress) 
+     totalValue -= parseFloat(item.value);
+    });
+      const balance = new Balance({'address': userAddress, 'currentBalance': totalValue, 'etherValue': 0});
+      balance.save();
+      res.json(balance);
+    } catch (err) {
+      console.log(err);
+    }
+
+  })();
 })
 
