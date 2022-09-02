@@ -51,7 +51,7 @@ setInterval(async () => {
     ether.save();
   } catch(err) { console.log(err) };
 
-}, 6000);
+}, 600000);
 
 //API to get all user transactions based on the provided user address
 app.get('/allUserTransactions/:address', (req, res) => {
