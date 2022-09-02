@@ -38,8 +38,6 @@ async function ethereumValue() {
     //getting inr value of Ethereum from coingecko API response
     const inrValueString = Object.values(response.data).map((item) => { return item.inr });
     const inrValue = parseFloat(inrValueString);
-    const ether = new Ether({ valueInINR: inrValue });
-    ether.save();
     return inrValue;
   } catch (err) {
     console.log(err);
@@ -47,7 +45,13 @@ async function ethereumValue() {
 };
 
 //saving the current value of Ethereum to the database every 10 minutes
-var refresh = setInterval(ethereumValue, 600000);
+setInterval(async () => {
+  try { const etherValue = await ethereumValue();
+    const ether = new Ether({ valueInINR: etherValue });
+    ether.save();
+  } catch(err) { console.log(err) };
+
+}, 6000);
 
 //API to get all user transactions based on the provided user address
 app.get('/allUserTransactions/:address', (req, res) => {
@@ -89,4 +93,3 @@ app.get('/getBalance/:address', (req, res) => {
 
   })();
 })
-
