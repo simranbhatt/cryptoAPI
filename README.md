@@ -23,9 +23,9 @@ npm start
 
 On Postman/Browser:
 
-GET localhost:<PORT>/allUserTransactions/<useraddress>
+GET localhost:{PORT}/allUserTransactions/{useraddress} 
 
-GET localhost:<PORT>/getBalance/<useraddress>
+GET localhost:{PORT}/getBalance/{useraddress} 
 
 
 
